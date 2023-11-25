@@ -29,6 +29,6 @@ class BlobApp(Ice.Application):
 
 
 def main():
-    """Handle the icedrive-authentication program."""
+    """Handle the icedrive-blob program."""
     app = BlobApp()
     return app.main(sys.argv)

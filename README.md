@@ -3,13 +3,14 @@
 This repository contains the project template for the Blob service proposed as laboratory work for the students
 of Distributed Systems in the course 2023-2024.
 
-## Updating `pyproject.toml`
+Soy Alejandro Paniagua Rodriguez y tenia asignado el servicio de **blob**
 
-One of the first things that you need to setup when you clone this branch is to take a look into
-`pyproject.toml` file and update the needed values:
+## Tabla de Contenido
 
-- Project authors
-- Project dependencies
-- Projects URL humepage
+- [Requisitos](#requisitos)
+- [Ejecución](#ejecución)
+- [Documentación](#documentación)
+- [Testing](#testing)
+- [Archivos](#archivos)
+- [Contacto](#contacto)
 
-Mi nombre es Alejandro 

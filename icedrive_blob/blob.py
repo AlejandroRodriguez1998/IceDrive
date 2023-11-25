@@ -5,18 +5,14 @@ import Ice
 import IceDrive
 
 
-class User(IceDrive.User):
-    """Implementation of an IceDrive.User interface."""
+class DataTransfer(IceDrive.DataTransfer):
+    """Implementation of an IceDrive.DataTransfer interface."""
 
-    def getUsername(self, current: Ice.Current = None) -> str:
-        """Return the username for the User object."""
+    def read(self, size: int, current: Ice.Current = None) -> bytes:
+        """Returns a list of bytes from the opened file."""
 
-    def isAlive(self, current: Ice.Current = None) -> bool:
-        """Check if the authentication is still valid or not."""
-
-    def refresh(self, current: Ice.Current = None) -> None:
-        """Renew the authentication for 1 more period of time."""
-
+    def close(self, current: Ice.Current = None) -> None:
+        """Close the currently opened file."""
 
 class BlobService(IceDrive.BlobService):
     """Implementation of an IceDrive.BlobService interface."""
@@ -32,7 +28,5 @@ class BlobService(IceDrive.BlobService):
     ) -> str:
         """Register a DataTransfer object to upload a file to the service."""
 
-    def download(
-        self, blob_id: str, current: Ice.Current = None
-    ) -> IceDrive.DataTransferPrx:
+    def download(self, blob_id: str, current: Ice.Current = None) -> IceDrive.DataTransferPrx:
         """Return a DataTransfer objet to enable the client to download the given blob_id."""
