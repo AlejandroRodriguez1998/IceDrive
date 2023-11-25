@@ -21,7 +21,7 @@ class DataTransfer(IceDrive.DataTransfer):
             raise IceDrive.FailedToReadData(str(e))
 
     def close(self, current: Ice.Current = None) -> None:
-        """Close the currently opened file."""
+        self.file.close()
 
 class BlobService(IceDrive.BlobService):
     """Implementation of an IceDrive.BlobService interface."""
