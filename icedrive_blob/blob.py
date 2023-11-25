@@ -1,15 +1,24 @@
 """Module for servants implementations."""
-
+import os
 import Ice
-
+import hashlib
 import IceDrive
-
+import tempfile
 
 class DataTransfer(IceDrive.DataTransfer):
-    """Implementation of an IceDrive.DataTransfer interface."""
+    def __init__(self, file_path, mode='rb'):
+        self.file_path = file_path
+        self.file = open(file_path, mode)
 
     def read(self, size: int, current: Ice.Current = None) -> bytes:
-        """Returns a list of bytes from the opened file."""
+        try:
+            data = self.file.read(size)
+            if data:
+                return data
+            else:
+                return None  # Indica el final de la transferencia
+        except Exception as e:
+            raise IceDrive.FailedToReadData(str(e))
 
     def close(self, current: Ice.Current = None) -> None:
         """Close the currently opened file."""
