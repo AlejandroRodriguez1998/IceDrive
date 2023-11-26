@@ -55,10 +55,17 @@ class BlobService(IceDrive.BlobService):
             os.remove(self.blobs[blob_id]['file_path'])
             del self.blobs[blob_id]
 
-    def upload(
-        self, blob: IceDrive.DataTransferPrx, current: Ice.Current = None
-    ) -> str:
+    def upload(self, blob: IceDrive.DataTransferPrx, current: Ice.Current = None) -> str:
         """Register a DataTransfer object to upload a file to the service."""
 
     def download(self, blob_id: str, current: Ice.Current = None) -> IceDrive.DataTransferPrx:
-        """Return a DataTransfer objet to enable the client to download the given blob_id."""
+        if blob_id not in self.blobs:
+            raise IceDrive.UnknownBlob("Blob not found")
+
+        file_path = self.blobs[blob_id]['file_path']
+        data_transfer = DataTransfer(file_path, 'rb')
+
+        # Registra la instancia de DataTransfer con el adaptador y obtiene su proxy
+        proxyDataTransfer = self.adapter.addWithUUID(data_transfer)
+
+        return IceDrive.DataTransferPrx.uncheckedCast(proxyDataTransfer)
