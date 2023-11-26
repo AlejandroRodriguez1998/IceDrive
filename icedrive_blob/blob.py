@@ -46,7 +46,14 @@ class BlobService(IceDrive.BlobService):
         self.blobs[blob_id]['ref_count'] += 1
 
     def unlink(self, blob_id: str, current: Ice.Current = None) -> None:
-        """Mark a blob_id as unlinked (removed) from some directory."""
+        if blob_id not in self.blobs:
+            raise IceDrive.UnknownBlob("Blob not found")
+
+        self.blobs[blob_id]['ref_count'] -= 1
+
+        if self.blobs[blob_id]['ref_count'] == 0:
+            os.remove(self.blobs[blob_id]['file_path'])
+            del self.blobs[blob_id]
 
     def upload(
         self, blob: IceDrive.DataTransferPrx, current: Ice.Current = None
