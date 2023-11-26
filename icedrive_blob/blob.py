@@ -24,7 +24,11 @@ class DataTransfer(IceDrive.DataTransfer):
         self.file.close()
 
 class BlobService(IceDrive.BlobService):
-    """Implementation of an IceDrive.BlobService interface."""
+    def __init__(self, adapter):
+        self.adapter = adapter
+        self.storage_path = tempfile.mkdtemp()
+        os.environ["STORAGE_PATH"] = self.storage_path
+        self.blobs = {}  # Dicionario donde almacenar blobId y rutas de archivo
 
     def link(self, blob_id: str, current: Ice.Current = None) -> None:
         """Mark a blob_id file as linked in some directory."""
