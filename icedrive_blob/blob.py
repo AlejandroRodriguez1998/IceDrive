@@ -40,7 +40,10 @@ class BlobService(IceDrive.BlobService):
         return sha256_hash.hexdigest()
 
     def link(self, blob_id: str, current: Ice.Current = None) -> None:
-        """Mark a blob_id file as linked in some directory."""
+        if blob_id not in self.blobs:
+            raise IceDrive.UnknownBlob("Blob not found")
+
+        self.blobs[blob_id]['ref_count'] += 1
 
     def unlink(self, blob_id: str, current: Ice.Current = None) -> None:
         """Mark a blob_id as unlinked (removed) from some directory."""
