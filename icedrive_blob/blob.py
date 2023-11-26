@@ -30,6 +30,15 @@ class BlobService(IceDrive.BlobService):
         os.environ["STORAGE_PATH"] = self.storage_path
         self.blobs = {}  # Dicionario donde almacenar blobId y rutas de archivo
 
+    def calculate_hash(self, file_path):
+        sha256_hash = hashlib.sha256()
+
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+
+        return sha256_hash.hexdigest()
+
     def link(self, blob_id: str, current: Ice.Current = None) -> None:
         """Mark a blob_id file as linked in some directory."""
 
