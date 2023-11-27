@@ -56,7 +56,29 @@ class BlobService(IceDrive.BlobService):
             del self.blobs[blob_id]
 
     def upload(self, blob: IceDrive.DataTransferPrx, current: Ice.Current = None) -> str:
-        """Register a DataTransfer object to upload a file to the service."""
+        # Ruta temporal del archivo
+        temp_file_path = os.path.join(self.storage_path, "temp_upload")
+
+        # Recibe y escribe los datos en un archivo temporal
+        with open(temp_file_path, "wb") as f:
+            while True:
+                data = blob.read(4096)
+                if not data:
+                    break
+                f.write(data)
+        blob.close()
+
+        # Calcula el hash del archivo y verifica si ya existe
+        blob_id = self.calculate_hash(temp_file_path)
+        final_path = os.path.join(self.storage_path, blob_id)
+
+        if blob_id not in self.blobs:
+            os.rename(temp_file_path, final_path)
+            self.blobs[blob_id] = {'file_path': final_path, 'ref_count': 0}
+        else:
+            os.remove(temp_file_path)  # Elimina el archivo temporal si el blob ya existe
+            
+        return blob_id
 
     def download(self, blob_id: str, current: Ice.Current = None) -> IceDrive.DataTransferPrx:
         if blob_id not in self.blobs:
