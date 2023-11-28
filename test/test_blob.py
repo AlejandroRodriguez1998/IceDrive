@@ -148,6 +148,14 @@ def test_blob_service(proxy_str):
         except IceDrive.UnknownBlob:
             print("Correctamente manejado el intento de desenlazar un blob inexistente\n")
 
+        #Eliminacion de los archivos para este testing
+        try:
+            os.remove(file_path)
+            os.remove(file_path1)
+        except OSError as e:
+            print(f"Error al eliminar el archivo: {e}")
+
+        communicator.destroy()
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
