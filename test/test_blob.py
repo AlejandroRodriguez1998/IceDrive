@@ -84,6 +84,32 @@ def test_blob_service(proxy_str):
             print("Los blobIds deben ser iguales al subir el mismo archivo")
             print(blob_id + " != " + blob_id2 + "\n")
 
+        # Simular la descarga de un blob
+        print("TEST 4: Simulacion de descarga del ID --> " + blob_id)
+
+        download_blob_proxy = blob_service.download(blob_id)
+        download_blob = DataTransfer(file_path, 'wb')
+
+        while True:
+            data = download_blob_proxy.read(4096)
+            if not data:
+                break
+            download_blob.file.write(data)
+            
+        download_blob_proxy.close()
+        download_blob.close()
+
+        print(f"Blob downloaded with proxy: {download_blob_proxy}\n")
+
+        # Intentar descargar un archivo que no existe
+        print("TEST 5: Simulacion de descarga del ID --> 1 (no existe)")
+
+        try:
+            inexistente_blob_proxy = blob_service.download("1")
+            # Intenta leer o realizar alguna operación con inexistente_blob_proxy
+            raise Exception("Se esperaba una excepción de blob no encontrado\n")
+        except IceDrive.UnknownBlob:
+            print("Correctamente manejado el intento de descargar un blob inexistente\n")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
