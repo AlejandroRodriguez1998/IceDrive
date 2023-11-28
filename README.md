@@ -1,9 +1,9 @@
-# IceDrive Authentication service template
+# IceDrive Blob Service Template
 
 This repository contains the project template for the Blob service proposed as laboratory work for the students
 of Distributed Systems in the course 2023-2024.
 
-Soy Alejandro Paniagua Rodriguez y tenia asignado el servicio de **blob**
+Soy Alejandro Paniagua Rodriguez y tengo asignado el servicio de **blob**
 
 ## Tabla de Contenido
 
@@ -21,28 +21,31 @@ Soy Alejandro Paniagua Rodriguez y tenia asignado el servicio de **blob**
 
 ## 🛠️ Ejecución
 
-- Primero debemos instalar el servicio:
+- 1 PASO: Debemos instalar el servicio:
 
   `pip install .`
  
- En caso de error seria el siguiente:
+  - En caso de error seria el siguiente:
 
-  `pip3 install .`
+      `pip3 install .`
+    
+ - 2 PASO: Iniciar el servicio con el comando:
+
+    `icedrive-blob --Ice.Config=config/blob.config`
  
  Si todo ha salido correctamente al ejecutar, saldria un mensaje parecido a lo siguiente:
  
  ```
  INFO:root:Proxy: 5650A7F3-149E-46D6-9259-D93A668392B8 -t -e 1.1:tcp -h 10.0.2.15 -p 41223 -t 60000
-
  ```
 
 ## ✔ Testing
 
-Para ejecutar el testing solo tenemos que ubicarnos en la carpeta _test_ donde pondremos el siguiente comando:
+Para ejecutar el testing solo tenemos que ubicarnos en la carpeta **_test_** donde pondremos el siguiente comando:
 
 `python3 test_fileService.py <proxy_BlobService>`
 
-Donde _<proxy_BlobService> es lo que nos proporciona  la ejecución del servicio.
+Donde **_<proxy_BlobService>_** es lo que nos proporciona  la ejecución del servicio.
 
 Un ejemplo:
 
@@ -86,6 +89,23 @@ Correctamente manejado el intento de desenlazar un blob inexistente
 
 ## 📚 Documentación
 
+El documento y toda la documentacion se encuentra en: https://campusvirtual.uclm.es/pluginfile.php/446956/mod_resource/content/7/Lab%20P1-rev2.pdf
+
+### DataTransfer
+
+- `read()`:
+  
+- `close()`:
+
+### BlobService
+
+- `link()`: 
+
+- `unlink()`: 
+
+- `upload()`:
+
+- `download()`:
 
 ## 📝 Archivos
 
