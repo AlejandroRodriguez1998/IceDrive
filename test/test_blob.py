@@ -125,6 +125,30 @@ def test_blob_service(proxy_str):
         except IceDrive.UnknownBlob:
             print("Correctamente manejado el intento de enlazar un blob inexistente\n")
 
+                # Simular el desenlace de un blob
+        print("TEST 8: Simulacion el desenlance del ID --> " + blob_id)
+
+        blob_service.unlink(blob_id)
+        print(f"Blob {blob_id} unlinked.\n")
+
+        # Volver a hacer el desenlance
+        print("TEST 9: Simulacion el desenlance del ID --> " + blob_id)
+
+        try:
+            blob_service.unlink(blob_id)
+        except IceDrive.UnknownBlob:
+            print("Blob ya no existe por lo tanto exception UnknownBlob.\n")
+
+        # Intentar desenlazar un blob inexistente
+        print("TEST 10: Simulacion el desenlance del ID --> 1 (no existe)")
+
+        try:
+            blob_service.unlink("1")
+            raise Exception("Se esperaba una excepción de blob no encontrado al desenlazar\n")
+        except IceDrive.UnknownBlob:
+            print("Correctamente manejado el intento de desenlazar un blob inexistente\n")
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Uso: test_blob.py <proxy_del_servicio>")
