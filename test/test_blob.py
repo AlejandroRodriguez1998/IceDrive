@@ -110,6 +110,21 @@ def test_blob_service(proxy_str):
         except IceDrive.UnknownBlob:
             print("Correctamente manejado el intento de descargar un blob inexistente\n")
 
+        # Simular el enlace de un blob
+        print("TEST 6: Simulacion el enlace del ID --> " + blob_id)
+
+        blob_service.link(blob_id)
+        print(f"Blob {blob_id} linked.\n")
+
+        # Intentar enlazar un blob inexistente
+        print("TEST 7: Simulacion el enlace del ID --> 1 (no existe)")
+
+        try:
+            blob_service.link("1")
+            raise Exception("Se esperaba una excepción de blob no encontrado al enlazar\n")
+        except IceDrive.UnknownBlob:
+            print("Correctamente manejado el intento de enlazar un blob inexistente\n")
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Uso: test_blob.py <proxy_del_servicio>")
