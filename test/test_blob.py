@@ -1,7 +1,6 @@
 import Ice
 import sys
 import os
-import tempfile
 
 ruta_actual = os.path.dirname(os.path.abspath(__file__))
 ruta_iceDrive = os.path.join(ruta_actual, "..", "icedrive_blob", "icedrive.ice")
@@ -105,7 +104,7 @@ def test_blob_service(proxy_str):
         print("TEST 5: Simulacion de descarga del ID --> 1 (no existe)")
 
         try:
-            inexistente_blob_proxy = blob_service.download("1")
+            blob_service.download("1")
             # Intenta leer o realizar alguna operación con inexistente_blob_proxy
             raise Exception("Se esperaba una excepción de blob no encontrado\n")
         except IceDrive.UnknownBlob:

@@ -30,3 +30,7 @@ linters = ["black", "ruff", "pydocstyle"]
 
 [project.scripts]
 icedrive-blob = "icedrive_blob.app:main"
+
+[tool.ruff]
+# Skip test for warn about E402 (Module level import not at top of file)
+ignore = ["E402"]
