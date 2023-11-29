@@ -61,34 +61,38 @@ python3 test_blob.py "B8A85B74-0E7E-4A9A-9639-2A67D46591F6 -t -e 1.1:tcp -h 10.0
 Al ejecutar el testing nos saldra un mensaje con la siguiente informanción:
 
 ```
-TEST 1: Simular la subida de un blob
+·TEST 1: Simular la subida de un blob
 Blob uploaded with ID: 922b553e3ecae8b0ac42cb63d2cbf461078f1f5a2e91e480a2b0b6fac8584dfe
 
-TEST 2: Simular la subida de un blob con diferente nombre pero con mismo contenido
-Los blobIds son iguales entonces subida no realizada
+·TEST 2: Simular la subida de un blob con diferente nombre pero con mismo contenido
+Los BlobIds son iguales entonces subida no realizada
 
-TEST 3: Simular la subida del blob del test 1
-Los blobIds son iguales entonces subida no realizada
+·TEST 3: Simular la subida del blob del test 1
+Los BlobIds son iguales entonces subida no realizada
 
-TEST 4: Simulacion de descarga del ID --> 922b553e3ecae8b0ac42cb63d2cbf461078f1f5a2e91e480a2b0b6fac8584dfe
-Blob downloaded with proxy: 50CDCD3B-3FBD-43DF-B468-42CF4CDD11F6 -t -e 1.1:tcp -h 10.0.2.15 -p 33195 -t 60000
+·TEST 4: Simulacion de descarga del ID --> 922b553e3ecae8b0ac42cb63d2cbf461078f1f5a2e91e480a2b0b6fac8584dfe
+Contenido del fichero descargado: Contenido de prueba
+Blob downloaded with proxy: 82A6D9EF-9713-4152-A1D8-41EFEC8F8860 -t -e 1.1:tcp -h 10.0.2.15 -p 44537 -t 60000
 
-TEST 5: Simulacion de descarga del ID --> 1 (no existe)
+·TEST 5: Comprobar si close de DataTransfer elimina la instancia
+Correctamente manejado el intento de leer una instancia de DataTransfer ya cerrada
+
+·TEST 6: Simulacion de descarga del ID --> 1 (no existe)
 Correctamente manejado el intento de descargar un blob inexistente
 
-TEST 6: Simulacion el enlace del ID --> 922b553e3ecae8b0ac42cb63d2cbf461078f1f5a2e91e480a2b0b6fac8584dfe
+·TEST 7: Simulacion el enlace del ID --> 922b553e3ecae8b0ac42cb63d2cbf461078f1f5a2e91e480a2b0b6fac8584dfe
 Blob 922b553e3ecae8b0ac42cb63d2cbf461078f1f5a2e91e480a2b0b6fac8584dfe linked.
 
-TEST 7: Simulacion el enlace del ID --> 1 (no existe)
+TEST 8: Simulacion el enlace del ID --> 1 (no existe)
 Correctamente manejado el intento de enlazar un blob inexistente
 
-TEST 8: Simulacion el desenlance del ID --> 922b553e3ecae8b0ac42cb63d2cbf461078f1f5a2e91e480a2b0b6fac8584dfe
+·TEST 9: Simulacion el desenlance del ID --> 922b553e3ecae8b0ac42cb63d2cbf461078f1f5a2e91e480a2b0b6fac8584dfe
 Blob 922b553e3ecae8b0ac42cb63d2cbf461078f1f5a2e91e480a2b0b6fac8584dfe unlinked.
 
-TEST 9: Simulacion el desenlance del ID --> 922b553e3ecae8b0ac42cb63d2cbf461078f1f5a2e91e480a2b0b6fac8584dfe
+·TEST 10: Simulacion el desenlance del ID --> 922b553e3ecae8b0ac42cb63d2cbf461078f1f5a2e91e480a2b0b6fac8584dfe
 Blob ya no existe por lo tanto exception UnknownBlob.
 
-TEST 10: Simulacion el desenlance del ID --> 1 (no existe)
+·TEST 11: Simulacion el desenlance del ID --> 1 (no existe)
 Correctamente manejado el intento de desenlazar un blob inexistente
 ```
 
