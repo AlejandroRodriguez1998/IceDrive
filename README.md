@@ -1,11 +1,14 @@
-# IceDrive Blob Service Template
+# IceDrive Blob Service ~~Template~~
 
-This repository contains the project template for the Blob service proposed as laboratory work for the students
-of Distributed Systems in the course 2023-2024.
+~~This repository contains the project template for the Blob service proposed as laboratory work for the students
+of Distributed Systems in the course 2023-2024.~~
 
-Soy Alejandro Paniagua Rodriguez y tengo asignado el servicio de **blob**
+Este repositorio contiene la plantilla del proyecto del servicio Blob propuesto como trabajo de laboratorio para los alumnos
+de Sistemas Distribuidos en el curso 2023-2024.
 
-## Tabla de Contenido
+Soy **Alejandro Paniagua Rodriguez** y tengo asignado el servicio de **blob**. 🗁
+
+##  🗄 Tabla de Contenido
 
 - [Requisitos](#%EF%B8%8F-requisitos)
 - [Ejecución](#%EF%B8%8F-ejecución)
@@ -53,6 +56,8 @@ Un ejemplo:
 python3 test_blob.py "B8A85B74-0E7E-4A9A-9639-2A67D46591F6 -t -e 1.1:tcp -h 10.0.2.15 -p 33195 -t 60000"
 ```
 
+**En caso de error** tenemos que darle permisos al archivo con el siguiente comando: `sudo chmod +x test_blob.py`.
+
 Al ejecutar el testing nos saldra un mensaje con la siguiente informanción:
 
 ```
@@ -89,23 +94,25 @@ Correctamente manejado el intento de desenlazar un blob inexistente
 
 ## 📚 Documentación
 
-El documento y toda la documentacion se encuentra en: https://campusvirtual.uclm.es/pluginfile.php/446956/mod_resource/content/7/Lab%20P1-rev2.pdf
+El servicio de almacenamiento utiliza sumas hash (como SHA256) para asignar identificadores únicos a los blobs (contenidos de archivos) en un sistema de archivos remoto. Al subir un archivo, el servicio verifica si el blob ya existe mediante su hash, ahorrando espacio si es duplicado. Además, se registra el número de enlaces a un blob, eliminándolo automáticamente cuando ya no está enlazado. El servicio persistente tiene dos interfaces, ::IceDrive::DataTransfer para la gestión de transferencias y ::IceDrive::BlobService para la implementación del servicio, permitiendo la configuración del directorio de persistencia.
+
+- Toda la documentacion se encuentra en el [enlace al documento del laboratorio.](https://campusvirtual.uclm.es/pluginfile.php/446956/mod_resource/content/7/Lab%20P1-rev2.pdf)
 
 ### DataTransfer
 
-- `read()`:
+- `read()`: El destinatario de la transferencia solicita el siguiente bloque de bytes, retorna un bloque de bytes del tamaño solicitado.
   
-- `close()`:
+- `close()`: Destinatario de la transferencia ya no desea seguir con la transferencia, debe eliminar la instancia de ::IceDrive::DataTransfer.
 
 ### BlobService
 
-- `link()`: 
+- `link()`: Incrementa el número de veces que un blob se encuentra enlazado.
 
-- `unlink()`: 
+- `unlink()`: Decrementa el número de veces que un blob se encuentra enlazado, cuando el blob no se encuentre enlazado, se eliminará.
 
-- `upload()`:
+- `upload()`: Subir un nuevo blob, cuando finalice la transferencia, devolverá el blobId.
 
-- `download()`:
+- `download()`: Devolverá una instancia de ::IceDrive::DataTransfer para permitir la descarga del mismo.
 
 ## 📝 Archivos
 
@@ -114,9 +121,10 @@ Tenemos la siguiente estructura:
 ```
 ├── config
 │   │ 
-│   ├── blob.config -->  Donde estan las configuraciones para app.py
+│   └── blob.config -->  Donde estan las configuraciones para app.py
 │   
 ├── icedrive_blob
+│   │
 │   ├── app.py --> Fichero python que arranca el servicio y lo pone en marcha
 │   │ 
 │   ├── blob.py --> Fichero python donde tiene toda la logica de ejecucion/metodos del servicio
@@ -135,4 +143,4 @@ Tenemos la siguiente estructura:
 
 ## ☎ Contacto
 
-Cualquier duda o consulta, escribid a mi correo: alejandro.paniagua1@alu.uclm.es
+Cualquier duda o consulta, escribid a mi correo: alejandro.paniagua1@alu.uclm.es.
