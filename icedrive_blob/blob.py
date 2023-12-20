@@ -55,7 +55,7 @@ class BlobService(IceDrive.BlobService):
             os.remove(self.blobs[blob_id]['file_path'])
             del self.blobs[blob_id]
 
-    def upload(self, blob: IceDrive.DataTransferPrx, current: Ice.Current = None) -> str:
+    def upload(sself, user: IceDrive.UserPrx, blob: IceDrive.DataTransferPrx, current: Ice.Current = None) -> str:
         # Ruta temporal del archivo
         temp_file_path = os.path.join(self.storage_path, "temp_upload")
 
@@ -80,7 +80,7 @@ class BlobService(IceDrive.BlobService):
             
         return blob_id
 
-    def download(self, blob_id: str, current: Ice.Current = None) -> IceDrive.DataTransferPrx:
+    def download(self, user: IceDrive.UserPrx, blob_id: str, current: Ice.Current = None) -> IceDrive.DataTransferPrx:
         if blob_id not in self.blobs:
             raise IceDrive.UnknownBlob("Blob not found")
 
