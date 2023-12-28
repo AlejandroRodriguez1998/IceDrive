@@ -21,7 +21,7 @@ class DataTransfer(IceDrive.DataTransfer):
                 return data
             else:
                 return None  # Indica el final de la transferencia
-        except Exception as e:
+        except Exception:
             raise IceDrive.FailedToReadData()
 
     def close(self, current: Ice.Current = None) -> None:
@@ -55,7 +55,7 @@ class BlobService(IceDrive.BlobService):
                 self.discovery.registeredServices[blobService_proxy] = self.serviceId
                 self.publisher.announceBlobService(blobService_proxy)
                 time.sleep(interval)
-            except Exception as e:
+            except Exception:
                 logging.error("Error publishing BlobService announcement: %s", e)
 
 
@@ -67,7 +67,7 @@ class BlobService(IceDrive.BlobService):
         try:
             if not auth_service_proxy.verifyUser(user_proxy):
                 raise IceDrive.UserNotExist(user_proxy)
-        except Exception as e:
+        except Exception:
             logging.warning("Authentication service error: %s", e)
 
     def calculate_hash(self, file_path):
