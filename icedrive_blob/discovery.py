@@ -1,14 +1,13 @@
 """Servant implementations for service discovery."""
 
 import Ice
-import uuid
 import random
 import logging
 import IceDrive
 
 class Discovery(IceDrive.Discovery):
-    def __init__(self):
-        self.serviceId = str(uuid.uuid4()) # Identificador único del servicio
+    def __init__(self, serviceId):
+        self.serviceId = serviceId  # Identificador único del servicio
         self.authenticationServices = []
         self.registeredServices = {}
         self.directoryServices = []
@@ -19,7 +18,7 @@ class Discovery(IceDrive.Discovery):
             self.authenticationServices.append(prx)
             logging.info(f"Received Authentication Service Announcement: {prx}")
 
-    def announceDirectoryService(self, prx: IceDrive.DirectoryServicePrx, current: Ice.Current = None) -> None:
+    def announceDirectoryServicey(self, prx: IceDrive.DirectoryServicePrx, current: Ice.Current = None) -> None:
         if prx not in self.directoryServices:
             self.directoryServices.append(prx)
             logging.info(f"Received Directory Service Announcement: {prx}")

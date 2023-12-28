@@ -1,12 +1,9 @@
 """Module for servants implementations."""
 import os
 import Ice
-import time
-import uuid
 import hashlib
 import logging
 import IceDrive
-import IceStorm
 import tempfile
 
 class DataTransfer(IceDrive.DataTransfer):
@@ -32,42 +29,19 @@ class BlobService(IceDrive.BlobService):
         self.storage_path = tempfile.mkdtemp()
         os.environ["STORAGE_PATH"] = self.storage_path
         # Inicializar las variables de instancia
-        self.serviceId = str(uuid.uuid4()) # Identificador único del servicio
         self.discovery = discovery
         self.adapter = adapter
-        self.publisher = None
-        self.running = True  # Variable de control para el hilo
         self.blobs = {}  # Dicionario donde almacenar blobId y rutas de archivo
         
-    # Implementación de la función de publicación
-    def publish_announcement(self, topic_manager, blobService_proxy, discovery_proxy, interval=5):
-        if self.publisher is None:
-            try:
-                announcementTopic = topic_manager.retrieve("Discovery")
-            except IceStorm.NoSuchTopic:
-                logging.error(f"Error: The topic 'Discovery' was not found. Details: {e}")
-
-            self.publisher = IceDrive.DiscoveryPrx.uncheckedCast(announcementTopic.getPublisher())
-            announcementTopic.subscribeAndGetPublisher({}, discovery_proxy)
-            
-        while self.running:
-            try:
-                self.discovery.registeredServices[blobService_proxy] = self.serviceId
-                self.publisher.announceBlobService(blobService_proxy)
-                time.sleep(interval)
-            except Exception:
-                logging.error("Error publishing BlobService announcement: %s", e)
-
-
-    def verify_user(self, user_proxy):
+    def verify_user(self, user):
         auth_service_proxy = self.discovery.get_authenticationService()
         if not auth_service_proxy:
             raise Exception("No authentication service available")
 
         try:
-            if not auth_service_proxy.verifyUser(user_proxy):
-                raise IceDrive.UserNotExist(user_proxy)
-        except Exception:
+            if not auth_service_proxy.verifyUser(user):
+                raise IceDrive.UserNotExist(user)
+        except Exception as e:
             logging.warning("Authentication service error: %s", e)
 
     def calculate_hash(self, file_path):
