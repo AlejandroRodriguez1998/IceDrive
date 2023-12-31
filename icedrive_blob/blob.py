@@ -33,7 +33,7 @@ class BlobService(IceDrive.BlobService):
         self.adapter = adapter
         self.blobs = {}  # Dicionario donde almacenar blobId y rutas de archivo
         
-    def verify_user(self, user):
+    def verify_user(self, user: IceDrive.UserPrx) -> None:
         auth_service_proxy = self.discovery.get_authenticationService()
         if not auth_service_proxy:
             raise Exception("No authentication service available")
@@ -44,7 +44,7 @@ class BlobService(IceDrive.BlobService):
         except Exception as e:
             logging.warning("Authentication service error: %s", e)
 
-    def calculate_hash(self, file_path):
+    def calculate_hash(self, file_path: str) -> str:
         sha256_hash = hashlib.sha256()
 
         with open(file_path, "rb") as f:

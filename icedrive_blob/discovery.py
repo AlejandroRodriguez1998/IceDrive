@@ -14,14 +14,14 @@ class Discovery(IceDrive.Discovery):
         self.blobServices = []
     
     def announceAuthentication(self, prx: IceDrive.AuthenticationPrx, current: Ice.Current = None) -> None:
-        if prx not in self.blobServices:
+        if prx not in self.authenticationServices:
             self.authenticationServices.append(prx)
-            logging.info(f"Received Authentication Service Announcement: {prx}")
+            logging.info(f"Received Authentication Service: {prx}")
 
-    def announceDirectoryServicey(self, prx: IceDrive.DirectoryServicePrx, current: Ice.Current = None) -> None:
+    def announceDirectoryService(self, prx: IceDrive.DirectoryServicePrx, current: Ice.Current = None) -> None:
         if prx not in self.directoryServices:
             self.directoryServices.append(prx)
-            logging.info(f"Received Directory Service Announcement: {prx}")
+            logging.info(f"Received Directory Service: {prx}")
 
     def announceBlobService(self, prx: IceDrive.BlobServicePrx, current: Ice.Current = None) -> None:
         serviceId = self.registeredServices.get(prx)
@@ -29,19 +29,19 @@ class Discovery(IceDrive.Discovery):
         if serviceId != self.serviceId:
             if prx not in self.blobServices:
                 self.blobServices.append(prx)
-                logging.info(f"Received Blob Service Announcement: {prx}")
+                logging.info(f"Received Blob Service: {prx}")
     
-    def get_blobService(self):
+    def get_blobService(self) -> IceDrive.BlobServicePrx:
         if not self.blobServices:
             return None
         return random.choice(self.blobServices)
 
-    def get_authenticationService(self):
+    def get_authenticationService(self) -> IceDrive.AuthenticationPrx:
         if not self.authenticationServices:
             return None
         return random.choice(self.authenticationServices)
 
-    def get_DirectoryService(self):
+    def get_DirectoryService(self) -> IceDrive.DirectoryServicePrx:
         if not self.directoryServices:
             return None
         return random.choice(self.directoryServices)

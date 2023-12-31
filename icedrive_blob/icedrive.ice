@@ -113,7 +113,7 @@
   // *** Services discovery *** //
   interface Discovery {
     void announceAuthentication(Authentication* prx);
-    void announceDirectoryServicey(DirectoryService* prx);
+    void announceDirectoryService(DirectoryService* prx);
     void announceBlobService(BlobService* prx);
   };
 }
