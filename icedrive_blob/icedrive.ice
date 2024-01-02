@@ -76,7 +76,7 @@
 
   interface BlobQuery {
     void downloadBlob(string blobId, BlobQueryResponse* response);
-    void blobIdExists(string blobId, BlobQueryResponse* response);
+    void blobExists(string blobId, BlobQueryResponse* response);
     void linkBlob(string blobId, BlobQueryResponse* response);
     void unlinkBlob(string blobId, BlobQueryResponse* response);
   };

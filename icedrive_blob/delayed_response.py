@@ -2,6 +2,7 @@
 
 import Ice
 import threading
+import logging
 import IceDrive
 
 class BlobQueryResponse(IceDrive.BlobQueryResponse):
@@ -15,12 +16,13 @@ class BlobQueryResponse(IceDrive.BlobQueryResponse):
     def start(self) -> None:
         self.timer.start()
 
-        while self.response == None:
+        while self.response is None:
             with self.lock:
                 self.condition.wait()
 
     def timeout(self) -> None:
         with self.lock:
+            logging.info("No response received in 5 seconds")
             self.response = False
             self.condition.notify()
 
@@ -59,14 +61,14 @@ class BlobQuery(IceDrive.BlobQuery):
         if dataTransferPrx:
             response.downloadBlob(dataTransferPrx)
 
-    def blobIdExists(self, blob_id: str, response: IceDrive.BlobQueryResponsePrx, current: Ice.Current = None) -> None:
+    def blobExists(self, blob_id: str, response: IceDrive.BlobQueryResponsePrx, current: Ice.Current = None) -> None:   
         if self.blobService.blobIdExists(blob_id):
             response.blobExists()
 
     def linkBlob(self, blob_id: str, response: IceDrive.BlobQueryResponsePrx, current: Ice.Current = None) -> None:
-        self.blobService.linkBlob(blob_id)
+        self.blobService.link(blob_id)
         response.blobLinked()
 
     def unlinkBlob(self, blob_id: str, response: IceDrive.BlobQueryResponsePrx, current: Ice.Current = None) -> None:
-        self.blobService.unlinkBlob(blob_id)
+        self.blobService.unlink(blob_id)
         response.blobUnlinked()
