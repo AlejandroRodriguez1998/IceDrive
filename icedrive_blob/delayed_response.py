@@ -1,28 +1,72 @@
 """Servant implementation for the delayed response mechanism."""
 
 import Ice
-
+import threading
 import IceDrive
 
-
 class BlobQueryResponse(IceDrive.BlobQueryResponse):
-    """Query response receiver."""
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.timer = threading.Timer(5.0, self.timeout)
+        self.condition = threading.Condition(self.lock)
+        self.response = None
+        self.blobs = None
+
+    def start(self) -> None:
+        self.timer.start()
+
+        while self.response == None:
+            with self.lock:
+                self.condition.wait()
+
+    def timeout(self) -> None:
+        with self.lock:
+            self.response = False
+            self.condition.notify()
+
     def downloadBlob(self, blob: IceDrive.DataTransferPrx, current: Ice.Current = None) -> None:
-        """Receive a `DataTransfer` when other service instance knows the `blob_id`."""
+        with self.lock:
+            self.blob = blob
+            self.response = True
+            self.timer.cancel()
+            self.condition.notify()
+
+    def blobExists(self, current: Ice.Current = None) -> None:
+        with self.lock:
+            self.response = True
+            self.timer.cancel()
+            self.condition.notify()
 
     def blobLinked(self, current: Ice.Current = None) -> None:
-        """Indicate that `blob_id` was recognised by other service instance and was linked."""
-
+        with self.lock:
+            self.response = True
+            self.timer.cancel()
+            self.condition.notify()
+        
     def blobUnlinked(self, current: Ice.Current = None) -> None:
-        """Indicate that `blob_id` was recognised by other service instance and was unlinked."""
+        with self.lock:
+            self.response = True
+            self.timer.cancel()
+            self.condition.notify()
 
 class BlobQuery(IceDrive.BlobQuery):
-    """Query receiver."""
+    def __init__(self, blobService):
+        self.blobService = blobService
+
     def downloadBlob(self, blob_id: str, response: IceDrive.BlobQueryResponsePrx, current: Ice.Current = None) -> None:
-        """Receive a query for downloading an archive based on `blob_id`."""
+        dataTransferPrx = self.blobService.downloadQuery(blob_id)
+
+        if dataTransferPrx:
+            response.downloadBlob(dataTransferPrx)
+
+    def blobIdExists(self, blob_id: str, response: IceDrive.BlobQueryResponsePrx, current: Ice.Current = None) -> None:
+        if self.blobService.blobIdExists(blob_id):
+            response.blobExists()
 
     def linkBlob(self, blob_id: str, response: IceDrive.BlobQueryResponsePrx, current: Ice.Current = None) -> None:
-        """Receive a query to create a link for `blob_id` archive if it exists."""
+        self.blobService.linkBlob(blob_id)
+        response.blobLinked()
 
     def unlinkBlob(self, blob_id: str, response: IceDrive.BlobQueryResponsePrx, current: Ice.Current = None) -> None:
-        """Receive a query to destroy a link for `blob_id` archive if it exists."""
+        self.blobService.unlinkBlob(blob_id)
+        response.blobUnlinked()

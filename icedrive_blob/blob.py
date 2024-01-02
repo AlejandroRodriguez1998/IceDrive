@@ -1,10 +1,13 @@
 """Module for servants implementations."""
 import os
 import Ice
+import time
 import hashlib
 import logging
 import IceDrive
 import tempfile
+
+from delayed_response import BlobQueryResponse
 
 class DataTransfer(IceDrive.DataTransfer):
     def __init__(self, file_path, mode='rb'):
@@ -29,20 +32,23 @@ class BlobService(IceDrive.BlobService):
         self.storage_path = tempfile.mkdtemp()
         os.environ["STORAGE_PATH"] = self.storage_path
         # Inicializar las variables de instancia
+        self.blob_query_publisher = None
         self.discovery = discovery
         self.adapter = adapter
         self.blobs = {}  # Dicionario donde almacenar blobId y rutas de archivo
         
-    def verify_user(self, user: IceDrive.UserPrx) -> None:
+    def verify_user(self, user: IceDrive.UserPrx) -> bool:
         auth_service_proxy = self.discovery.get_authenticationService()
-        if not auth_service_proxy:
-            raise Exception("No authentication service available")
+        result = False
 
         try:
-            if not auth_service_proxy.verifyUser(user):
-                raise IceDrive.UserNotExist(user)
+           result = auth_service_proxy.verifyUser(user)
+        except IceDrive.UserNotExist:
+            logging.warning("User does not exist")
         except Exception as e:
-            logging.warning("Authentication service error: %s", e)
+            logging.warning("Error: %s", e)
+
+        return result
 
     def calculate_hash(self, file_path: str) -> str:
         sha256_hash = hashlib.sha256()
@@ -54,51 +60,97 @@ class BlobService(IceDrive.BlobService):
         return sha256_hash.hexdigest()
     
     def link(self, blob_id: str, current: Ice.Current = None) -> None:
-        if blob_id not in self.blobs:
-            raise IceDrive.UnknownBlob("Blob not found")
+        if blob_id in self.blobs:
+            self.blobs[blob_id]['ref_count'] += 1
+        else:
+            response = BlobQueryResponse()
+            response_proxy = IceDrive.BlobQueryResponsePrx.uncheckedCast(self.adapter.addWithUUID(response))
 
-        self.blobs[blob_id]['ref_count'] += 1
+            self.blob_query_publisher.linkBlob(blob_id, response_proxy)
+
+            response.start()
+
+            if response.response:
+                logging.info("Blob linked with BlobQuery")
+            else:
+                logging.info("No response received in 5 seconds or other problem")
 
     def unlink(self, blob_id: str, current: Ice.Current = None) -> None:
-        if blob_id not in self.blobs:
-            raise IceDrive.UnknownBlob("Blob not found")
+        if blob_id in self.blobs:
+            self.blobs[blob_id]['ref_count'] -= 1
 
-        self.blobs[blob_id]['ref_count'] -= 1
+            if self.blobs[blob_id]['ref_count'] == 0:
+                os.remove(self.blobs[blob_id]['file_path'])
+                del self.blobs[blob_id]
+        else:
+            response = BlobQueryResponse()
+            response_proxy = IceDrive.BlobQueryResponsePrx.uncheckedCast(self.adapter.addWithUUID(response))
 
-        if self.blobs[blob_id]['ref_count'] == 0:
-            os.remove(self.blobs[blob_id]['file_path'])
-            del self.blobs[blob_id]
+            self.blob_query_publisher.unlinkBlob(blob_id, response_proxy)
+
+            response.start()
+
+            if response.response:
+                logging.info("Blob unlinked with BlobQuery")
+            else:
+                logging.info("No response received in 5 seconds or other problem")
+
 
     def upload(self, user: IceDrive.UserPrx, blob: IceDrive.DataTransferPrx, current: Ice.Current = None) -> str:
-        self.verify_user(user) #Verifica el usuario
-        
-        # Ruta temporal del archivo
-        temp_file_path = os.path.join(self.storage_path, "temp_upload")
+        blob_id = None
 
-        # Recibe y escribe los datos en un archivo temporal
-        with open(temp_file_path, "wb") as f:
-            while True:
-                data = blob.read(4096)
-                if not data:
-                    break
-                f.write(data)
-        blob.close()
+        if self.verify_user(user): #Verifica el usuario
+            # Ruta temporal del archivo
+            temp_file_path = os.path.join(self.storage_path, "temp_upload")
 
-        # Calcula el hash del archivo y verifica si ya existe
-        blob_id = self.calculate_hash(temp_file_path)
-        final_path = os.path.join(self.storage_path, blob_id)
+            # Recibe y escribe los datos en un archivo temporal
+            with open(temp_file_path, "wb") as f:
+                while True:
+                    data = blob.read(4096)
+                    if not data:
+                        break
+                    f.write(data)
+            blob.close()
 
-        if blob_id not in self.blobs:
-            os.rename(temp_file_path, final_path)
-            self.blobs[blob_id] = {'file_path': final_path, 'ref_count': 0}
-        else:
-            os.remove(temp_file_path)  # Elimina el archivo temporal si el blob ya existe
+            # Calcula el hash del archivo y verifica si ya existe
+            blob_id = self.calculate_hash(temp_file_path)
+            final_path = os.path.join(self.storage_path, blob_id)
+
+            if blob_id not in self.blobs:
+                os.rename(temp_file_path, final_path)
+                self.blobs[blob_id] = {'file_path': final_path, 'ref_count': 0}
+            else:
+                os.remove(temp_file_path)  # Elimina el archivo temporal si el blob ya existe
             
         return blob_id
 
     def download(self, user: IceDrive.UserPrx, blob_id: str, current: Ice.Current = None) -> IceDrive.DataTransferPrx:
-        self.verify_user(user) #Verifica el usuario
+        dataTanferPrx = None
+        
+        if self.verify_user(user): #Verifica el usuario
+            if blob_id in self.blobs:
+                file_path = self.blobs[blob_id]['file_path']
+                data_transfer = DataTransfer(file_path, 'rb')
 
+                # Registra la instancia de DataTransfer con el adaptador y obtiene su proxy
+                dataTanferPrx = IceDrive.DataTransferPrx.uncheckedCast(self.adapter.addWithUUID(data_transfer)) 
+            else:
+                response = BlobQueryResponse()
+                response_proxy = IceDrive.BlobQueryResponsePrx.uncheckedCast(self.adapter.addWithUUID(response))
+
+                self.blob_query_publisher.downloadBlob(blob_id, response_proxy)
+
+                response.start()
+
+                if response.response:
+                    logging.info("Blob downloaded with BlobQuery")
+                    dataTanferPrx = response.blob
+                else:
+                    logging.info("No response received in 5 seconds or other problem")
+
+        return dataTanferPrx
+        
+    def downloadQuery(self, blob_id: str, current: Ice.Current = None) -> IceDrive.DataTransferPrx:
         if blob_id not in self.blobs:
             raise IceDrive.UnknownBlob("Blob not found")
 
@@ -109,3 +161,6 @@ class BlobService(IceDrive.BlobService):
         proxyDataTransfer = self.adapter.addWithUUID(data_transfer)
 
         return IceDrive.DataTransferPrx.uncheckedCast(proxyDataTransfer)
+
+    def blobIdExists(self, blob_id: str, current: Ice.Current = None) -> bool:
+        return blob_id in self.blobs

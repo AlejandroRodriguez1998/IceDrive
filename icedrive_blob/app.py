@@ -9,6 +9,7 @@ import IceDrive
 import threading
 
 from .discovery import Discovery
+from .delayed_response import BlobQuery
 from .blob import BlobService
 from typing import List
 
@@ -38,17 +39,22 @@ class BlobApp(Ice.Application):
 
         logging.info("Proxy: %s\n", self.blobService_proxy)
 
+        blobQuery = BlobQuery(blobService)
+        blobQuery_proxy = IceDrive.BlobQueryPrx.checkedCast(adapter.addWithUUID(blobQuery))
+
         topic_manager = self.communicator().propertyToProxy("IceStorm.TopicManager.Proxy")
         self.topic_manager = IceStorm.TopicManagerPrx.checkedCast(topic_manager)
 
         self.discovery_topic = self.get_announcement_topic("discovery", self.topic_manager)
-        #self.blobQuery_topic = self.get_announcement_topic("blobQuery", self.topic_manager)
+        self.blobQuery_topic = self.get_announcement_topic("blob", self.topic_manager)
 
-        self.publisher_discovery = IceDrive.DiscoveryPrx.uncheckedCast(self.discovery_topic.getPublisher())
-        #self.publisher_blobQuery = IceDrive.BlobQueryPrx.uncheckedCast(self.blobQuery_topic.getPublisher())
+        self.publisher_discovery = IceDrive.DiscoveryPrx.uncheckedCast(self.discovery_topic.getPublisher().ice_oneway())
+        self.publisher_blobQuery = IceDrive.BlobQueryPrx.uncheckedCast(self.blobQuery_topic.getPublisher().ice_oneway())
+
+        blobService.blob_query_publisher = self.publisher_blobQuery
 
         self.discovery_topic.subscribeAndGetPublisher({}, discovery_proxy)
-        #self.blobQuery_topic.subscribeAndGetPublisher({}, blobQuery_proxy)
+        self.blobQuery_topic.subscribeAndGetPublisher({}, blobQuery_proxy)
 
         # Iniciar el hilo para anunciar el servicio cada 5 segundos
         self.thread = threading.Thread(target=self.publish_announcement)
@@ -62,6 +68,7 @@ class BlobApp(Ice.Application):
         self.running = False
         self.thread.join()  # Espera a que el hilo termine
         self.discovery_topic.unsubscribe(discovery_proxy)
+        self.blobQuery_topic.unsubscribe(blobQuery_proxy)
 
         return 0
 
