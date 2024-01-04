@@ -11,7 +11,7 @@ class BlobQueryResponse(IceDrive.BlobQueryResponse):
         self.timer = threading.Timer(5.0, self.timeout)
         self.condition = threading.Condition(self.lock)
         self.response = None
-        self.blobs = None
+        self.blob = None
 
     def start(self) -> None:
         self.timer.start()
@@ -66,9 +66,9 @@ class BlobQuery(IceDrive.BlobQuery):
             response.blobExists()
 
     def linkBlob(self, blob_id: str, response: IceDrive.BlobQueryResponsePrx, current: Ice.Current = None) -> None:
-        self.blobService.link(blob_id)
+        self.blobService.linkQuery(blob_id)
         response.blobLinked()
 
     def unlinkBlob(self, blob_id: str, response: IceDrive.BlobQueryResponsePrx, current: Ice.Current = None) -> None:
-        self.blobService.unlink(blob_id)
+        self.blobService.unlinkQuery(blob_id)
         response.blobUnlinked()
