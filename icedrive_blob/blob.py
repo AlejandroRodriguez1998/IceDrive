@@ -1,11 +1,13 @@
 """Module for servants implementations."""
 import os
+import sys
 import Ice
 import hashlib
 import logging
 import IceDrive
 import tempfile
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))) # Para poder ejecutar desde app.py y test.py
 from delayed_response import BlobQueryResponse
 
 class DataTransfer(IceDrive.DataTransfer):

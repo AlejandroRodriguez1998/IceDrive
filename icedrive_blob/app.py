@@ -17,14 +17,9 @@ class BlobApp(Ice.Application):
     def __init__(self):
         self.serviceId = str(uuid.uuid4()) # Identificador único del servicio
         self.publisher_discovery = None
-        self.publisher_blobQuery = None 
         self.blobService_proxy = None
-        self.discovery_topic = None
-        self.blobQuery_topic = None
-        self.topic_manager = None
         self.discovery = None
         self.running = True  # Variable de control para el hilo
-        self.thread = None
 
     def run(self, args: List[str]) -> int:
         """Execute the code for the BlobApp class."""
@@ -43,32 +38,32 @@ class BlobApp(Ice.Application):
         blobQuery_proxy = IceDrive.BlobQueryPrx.checkedCast(adapter.addWithUUID(blobQuery))
 
         topic_manager = self.communicator().propertyToProxy("IceStorm.TopicManager.Proxy")
-        self.topic_manager = IceStorm.TopicManagerPrx.checkedCast(topic_manager)
+        topic_managerPrx = IceStorm.TopicManagerPrx.checkedCast(topic_manager)
 
-        self.discovery_topic = self.get_announcement_topic("discovery", self.topic_manager)
-        self.blobQuery_topic = self.get_announcement_topic("blob", self.topic_manager)
+        discovery_topic = self.get_announcement_topic("discovery", topic_managerPrx)
+        blobQuery_topic = self.get_announcement_topic("blob", topic_managerPrx)
 
-        self.publisher_discovery = IceDrive.DiscoveryPrx.uncheckedCast(self.discovery_topic.getPublisher().ice_oneway())
-        self.publisher_blobQuery = IceDrive.BlobQueryPrx.uncheckedCast(self.blobQuery_topic.getPublisher().ice_oneway())
+        self.publisher_discovery = IceDrive.DiscoveryPrx.uncheckedCast(discovery_topic.getPublisher().ice_oneway())
+        publisher_blobQuery = IceDrive.BlobQueryPrx.uncheckedCast(blobQuery_topic.getPublisher().ice_oneway())
 
-        blobService.blob_query_publisher = self.publisher_blobQuery
+        blobService.pub_deferred = publisher_blobQuery
 
-        self.discovery_topic.subscribeAndGetPublisher({}, discovery_proxy)
-        self.blobQuery_topic.subscribeAndGetPublisher({}, blobQuery_proxy)
+        discovery_topic.subscribeAndGetPublisher({}, discovery_proxy)
+        blobQuery_topic.subscribeAndGetPublisher({}, blobQuery_proxy)
 
         # Iniciar el hilo para anunciar el servicio cada 5 segundos
-        self.thread = threading.Thread(target=self.publish_announcement)
-        self.thread.daemon = True  # No impide que el programa se cierre
-        self.thread.start()
+        thread = threading.Thread(target=self.publish_announcement)
+        thread.daemon = True  # No impide que el programa se cierre
+        thread.start()
 
         self.shutdownOnInterrupt()
         self.communicator().waitForShutdown()
 
         logging.info("Announcements finished")
         self.running = False
-        self.thread.join()  # Espera a que el hilo termine
-        self.discovery_topic.unsubscribe(discovery_proxy)
-        self.blobQuery_topic.unsubscribe(blobQuery_proxy)
+        thread.join()  # Espera a que el hilo termine
+        discovery_topic.unsubscribe(discovery_proxy)
+        blobQuery_topic.unsubscribe(blobQuery_proxy)
 
         return 0
 

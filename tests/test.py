@@ -64,9 +64,9 @@ def test_blob_service():
 
         #Crear adaptadores
         adapterBlob = communicator.createObjectAdapter("BlobAdapter")
-        adapterBlob1 = communicator.createObjectAdapterWithEndpoints("BlobAdapter1", "tcp -p 10003")
-        adapterAuth = communicator.createObjectAdapterWithEndpoints("AuthAdapter", "tcp -p 10004")
-        adapterClie = communicator.createObjectAdapterWithEndpoints("ClientAdapter", "tcp -p 10005")
+        adapterBlob1 = communicator.createObjectAdapterWithEndpoints("BlobAdapter1", "tcp -h localhost -p 10003")
+        adapterAuth = communicator.createObjectAdapterWithEndpoints("AuthAdapter", "tcp -h localhost -p 10004")
+        adapterClie = communicator.createObjectAdapterWithEndpoints("ClientAdapter", "tcp -h localhost -p 10005")
         
         #Activar adaptadores
         adapterBlob.activate()
