@@ -19,23 +19,40 @@
   exception UnknownBlob { string blobId; };
   exception FailedToReadData {};
 
+  exception TemporaryUnavailable { string serviceName; }
+
   // *** SERVICES *** //
 
-  // Authentication Service
+  // ** Authentication Service **
   interface User {
     string getUsername();
     bool isAlive();
     void refresh() throws Unauthorized, UserNotExist;
-  }
+  };
 
   interface Authentication {
     User* login(string username, string password) throws Unauthorized;
     User* newUser(string username, string password) throws UserAlreadyExists;
     void removeUser(string username, string password) throws Unauthorized; // Hide UserNotExist to avoid showing too much info
-    bool verifyUser(User *user); // checks if the proxy is created by a valid instance of Authentication, not if the credentials are still valid.
+    bool verifyUser(User *user) throws Unauthorized; // checks if the proxy is created by a valid instance of Authentication, not if the credentials are still valid.
   };
 
-  // Blob Storage Service
+  // Authentication deferred requests
+  interface AuthenticationQueryResponse {
+    void loginResponse(User* user);
+    void userExists(string username);
+    void userRemoved();
+    void verifyUserResponse(bool result);
+  };
+
+  interface AuthenticationQuery {
+    void login(string username, string password, AuthenticationQueryResponse* response);
+    void doesUserExists(string username, AuthenticationQueryResponse* response);
+    void removeUser(string username, string password, AuthenticationQueryResponse* response);
+    void verifyUser(User *user, AuthenticationQueryResponse* response);
+  };
+
+  // ** Blob Storage Service **
 
   interface DataTransfer {
     Bytes read(int size) throws FailedToReadData;
@@ -46,27 +63,62 @@
     void link(string blobId) throws UnknownBlob;
     void unlink(string blobId) throws UnknownBlob;
 
-    string upload(DataTransfer *blob) throws FailedToReadData;
-    DataTransfer* download(string blobId) throws UnknownBlob;
+    string upload(User* user, DataTransfer *blob) throws FailedToReadData, TemporaryUnavailable, Unauthorized;
+    DataTransfer* download(User* user, string blobId) throws UnknownBlob, TemporaryUnavailable, Unauthorized;
   };
 
-  // Directory Service
+  // Blob service deferred requests
+
+  interface BlobQueryResponse {
+    void downloadBlob(DataTransfer* blob);
+    void blobExists();
+    void blobLinked();
+    void blobUnlinked();
+  };
+
+  interface BlobQuery {
+    void downloadBlob(string blobId, BlobQueryResponse* response);
+    void blobExists(string blobId, BlobQueryResponse* response);
+    void linkBlob(string blobId, BlobQueryResponse* response);
+    void unlinkBlob(string blobId, BlobQueryResponse* response);
+  };
+
+  // ** Directory Service **
 
   interface Directory {
-    Directory* getParent() throws RootHasNoParent;
-    Strings getChilds();
-    Directory* getChild(string childName) throws ChildNotExists;
-    Directory* createChild(string childName) throws ChildAlreadyExists;
-    void removeChild(string childName) throws ChildNotExists;
+    Directory* getParent() throws RootHasNoParent, Unauthorized;
+    string getPath() throws Unauthorized;
+    Strings getChilds() throws Unauthorized;
+    Directory* getChild(string childName) throws ChildNotExists, Unauthorized;
+    Directory* createChild(string childName) throws ChildAlreadyExists, Unauthorized;
+    void removeChild(string childName) throws ChildNotExists, Unauthorized;
 
-    Strings getFiles();
-    string getBlobId(string filename) throws FileNotFound;
-    void linkFile(string fileName, string blobId) throws FileAlreadyExists;
-    void unlinkFile(string fileName) throws FileNotFound;
+    Strings getFiles() throws Unauthorized;
+    string getBlobId(string filename) throws FileNotFound, Unauthorized;
+    void linkFile(string fileName, string blobId) throws FileAlreadyExists, Unauthorized, TemporaryUnavailable;
+    void unlinkFile(string fileName) throws FileNotFound, Unauthorized, TemporaryUnavailable;
   };
 
   interface DirectoryService {
-    Directory* getRoot(string user);
+    Directory* getRoot(User* user) throws TemporaryUnavailable, Unauthorized;
+  };
+
+  // Directory service deferred requests
+
+  interface DirectoryQueryResponse{
+    void rootDirectoryResponse(Directory *root);
+  };
+
+  interface DirectoryQuery{
+    void rootDirectory(User* user, DirectoryQueryResponse* response);
+  };
+
+  // *** Services discovery *** //
+
+  interface Discovery {
+    void announceAuthentication(Authentication* prx);
+    void announceDirectoryService(DirectoryService* prx);
+    void announceBlobService(BlobService* prx);
   };
 
 }
