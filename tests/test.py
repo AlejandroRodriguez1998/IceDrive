@@ -28,7 +28,7 @@ class User(IceDrive.User):
         return self.username
 
     def isAlive(self, current: Ice.Current = None) -> bool:
-        pass
+        return True
 
     def refresh(self, current: Ice.Current = None) -> None:
         pass
