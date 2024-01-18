@@ -47,15 +47,13 @@ class BlobService(IceDrive.BlobService):
 
         try:
            result = auth_service_proxy.verifyUser(user)
-        except IceDrive.UserNotExist:
-            logging.warning("User does not exist")
         except (Ice.ConnectionRefusedException, ConnectionError):
-            logging.warning("Connection refused")
             self.discovery.authenticationServices.remove(auth_service_proxy)
+            logging.warning("Connection refused")
         except Exception:
-            pass
             #logging.warning("Error desde Exception")
-
+            pass
+            
         return result
 
     def calculate_hash(self, file_path: str) -> str:

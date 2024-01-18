@@ -188,16 +188,23 @@ def test_blob_service():
         assert str(download_blob_proxy_mal) is not None, "Blob downloaded\n"
         logging.info(f"DataTransferPrx: {download_blob_proxy_mal}\n")
 
+        logging.info("·TEST 7: Simular la subida de un blob que ya existe en otro servicio")
+
+        blod_id_existente = blobService1_proxy.upload(user,download_blob_proxy) # Subimos
+
+        assert blod_id_existente not in blobService1.blobs, "Blob uploaded\n"
+        logging.info(f"Blob not uploaded with ID: {blod_id_existente}\n")
+
         # EMPIEZA LOS METODOS DE DIFERIDO
 
-        logging.info("·TEST 7: Descargar un blob por diferido")
+        logging.info("·TEST 8: Descargar un blob por diferido")
 
         download_blob_proxy = blobService1_proxy.download(user,blob_id) # Descargamos
 
         assert download_blob_proxy is not None, "Blob not downloaded\n"
         logging.info(f"DataTransferPrx: {download_blob_proxy}\n")
 
-        logging.info("·TEST 8: Link de un blob por diferido")
+        logging.info("·TEST 9: Link de un blob por diferido")
         blobService_proxy.link(blob_id) # Linkamos
         logging.info(f"Antes de la llamada el blob tiene: {blobService.blobs[blob_id]['ref_count']}")
 
@@ -206,7 +213,7 @@ def test_blob_service():
         assert blobService.blobs[blob_id]['ref_count'] == 2, "Blob not linked\n"
         logging.info(f"Después de la llamada el blob tiene: {blobService.blobs[blob_id]['ref_count']}\n")
 
-        logging.info("·TEST 9: Unlink de un blob por diferido")
+        logging.info("·TEST 10: Unlink de un blob por diferido")
         logging.info(f"Antes de la llamada el blob tiene: {blobService.blobs[blob_id]['ref_count']}")
 
         blobService1_proxy.unlink(blob_id) # Unlinkamos

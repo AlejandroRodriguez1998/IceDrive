@@ -60,22 +60,22 @@ Al ejecutar el testing nos saldra un mensaje con la siguiente informanción:
 ```
 Para estos test se crean:
 · Un servicio de autenticación:
- 7476C68B-6C66-4490-A5BF-55424B3EB165 -t -e 1.1:tcp -h localhost -p 10004 -t 60000
+ 8A00768F-7C0C-4CFE-880A-7A60879431D8 -t -e 1.1:tcp -h localhost -p 10004 -t 60000
 
 · Un servicio de descubrimiento:
- 71B594C8-99D9-4332-9736-A8D7FB2A3165 -t -e 1.1:tcp -h 192.168.0.89 -p 55137 -t 60000
+ 74EAE096-AEA9-4A3A-9373-E9D51477B1D8 -t -e 1.1:tcp -h 192.168.0.89 -p 55719 -t 60000
 
 · Donde se anuncia el autenticador:
-Received Authentication Service: 7476C68B-6C66-4490-A5BF-55424B3EB165 -t -e 1.1:tcp -h localhost -p 10004 -t 60000
+Received Authentication Service: 8A00768F-7C0C-4CFE-880A-7A60879431D8 -t -e 1.1:tcp -h localhost -p 10004 -t 60000
 
 · Un blob service:
-09B31A85-9056-41D2-87AC-18D4C438B165 -t -e 1.1:tcp -h 192.168.0.89 -p 55137 -t 60000
+D237E252-17FF-49CE-9396-4956C4C0B1D8 -t -e 1.1:tcp -h 192.168.0.89 -p 55719 -t 60000
 
 · Otro blob service:
-D1AC8B1D-53EB-4D78-9361-83A93A74B165 -t -e 1.1:tcp -h localhost -p 10003 -t 60000
+A93057D9-E6D5-4136-81A4-73026474B1D8 -t -e 1.1:tcp -h localhost -p 10003 -t 60000
 
 · Un blob query:
-846600B9-354D-4C54-BA78-3FE04936B165 -t -e 1.1:tcp -h 192.168.0.89 -p 55137 -t 60000
+345BDE5E-A494-42E4-BD78-D85C2B8631D8 -t -e 1.1:tcp -h 192.168.0.89 -p 55719 -t 60000
 
 ·TEST 1: Verificar usuario que existe --> test_user
 User user_existente verified
@@ -85,27 +85,32 @@ User user_no_existente not verified
 
 ·TEST 3: Simular la subida de un blob con el usuario (user_existente)
 No response received in 5 seconds
+Blob id not exists with BlobQuery
 Blob uploaded with ID: 922b553e3ecae8b0ac42cb63d2cbf461078f1f5a2e91e480a2b0b6fac8584dfe
 
 ·TEST 4: Simular la subida de un blob con el usuario (user_no_existente)
 Blob not uploaded with ID:
 
 ·TEST 5: Simular la descarga de un blob con el usuario (user_existente)
-DataTransferPrx: DA236EFA-7B31-45EB-85B6-A36527AFB165 -t -e 1.1:tcp -h 192.168.0.89 -p 55137 -t 60000
+DataTransferPrx: 81A59494-F47E-49B0-ADE9-96E4A1AC31D8 -t -e 1.1:tcp -h 192.168.0.89 -p 55719 -t 60000
 
 ·TEST 6: Simular la descarga de un blob con el usuario (user_no_existente)
 DataTransferPrx: None
 
-·TEST 7: Descargar un blob por diferido
-Blob downloaded with BlobQuery
-DataTransferPrx: 5962B78C-A750-4EE6-A4BF-C014EF5B3165 -t -e 1.1:tcp -h 192.168.0.89 -p 55137 -t 60000
+·TEST 7: Simular la subida de un blob que ya existe en otro servicio
+Blob id exists with BlobQuery
+Blob not uploaded with ID: 922b553e3ecae8b0ac42cb63d2cbf461078f1f5a2e91e480a2b0b6fac8584dfe
 
-·TEST 8: Link de un blob por diferido
+·TEST 8: Descargar un blob por diferido
+Blob downloaded with BlobQuery
+DataTransferPrx: E2B26645-F251-4DDD-9BDA-616032EEB1D8 -t -e 1.1:tcp -h 192.168.0.89 -p 55719 -t 60000
+
+·TEST 9: Link de un blob por diferido
 Antes de la llamada el blob tiene: 1
 Blob linked with BlobQuery
 Después de la llamada el blob tiene: 2
 
-·TEST 9: Unlink de un blob por diferido
+·TEST 10: Unlink de un blob por diferido
 Antes de la llamada el blob tiene: 2
 Blob unlinked with BlobQuery
 Blob unliked con exito: 1
